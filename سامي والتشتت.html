@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>سامي والتشتت</title>
+<style>
+:root{--bg:#fff8ec;--text:#2b2b3a;--card:#fff;--accent:#ff7a3d;--mute:#8a8798;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#1c1a24;--text:#f3f0fa;--card:#2a2735;--mute:#a9a5b8}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:"Segoe UI",Tahoma,Arial,sans-serif;padding:12px}
+.wrap{max-width:720px;margin:0 auto}
+#stage{position:relative;width:100%;aspect-ratio:16/9;border-radius:18px;overflow:hidden;background:linear-gradient(#bfe6ff,#e8f7ff 60%,#c9ecc0 60%);box-shadow:0 4px 16px rgba(0,0,0,.18)}
+#stage svg{position:absolute;inset:0;width:100%;height:100%}
+.it{position:absolute;font-size:clamp(1.6rem,7vw,3.4rem);animation:fl 2.2s ease-in-out infinite;transform:translate(-50%,-50%)}
+.it:nth-child(2n){animation-delay:-.7s}.it:nth-child(3n){animation-delay:-1.4s}
+@keyframes fl{0%,100%{margin-top:0}50%{margin-top:-14px}}
+@keyframes away{to{transform:translate(calc(-50% + var(--dx)),calc(-50% + var(--dy))) scale(.2) rotate(360deg);opacity:0}}
+.it.away{animation:away 1.8s ease-in forwards}
+.badge{position:absolute;top:10px;right:12px;background:var(--accent);color:#fff;padding:4px 14px;border-radius:20px;font-weight:bold;font-size:clamp(.85rem,3vw,1.2rem);animation:pop .5s}
+@keyframes pop{from{transform:scale(0)}to{transform:scale(1)}}
+.mid{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);text-align:center;font-weight:bold;color:#fff;text-shadow:0 2px 6px rgba(0,0,0,.4);font-size:clamp(1rem,4vw,1.8rem)}
+.breath{position:absolute;left:50%;top:42%;width:26%;aspect-ratio:1;border-radius:50%;background:rgba(255,255,255,.7);border:4px solid #4aa3ff;display:flex;align-items:center;justify-content:center;font-weight:bold;color:#2b6cb0;animation:br 6s ease-in-out infinite;transform:translate(-50%,-50%)}
+@keyframes br{0%,100%{width:18%}50%{width:34%}}
+.pulse{position:absolute;left:50%;top:22%;font-size:clamp(2.4rem,10vw,5rem);transform:translateX(-50%);animation:pu 1s ease-in-out infinite}
+@keyframes pu{50%{transform:translateX(-50%) scale(1.2)}}
+.spin{display:inline-block;animation:sp 2s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+.conf{position:absolute;top:-10%;font-size:clamp(1.2rem,5vw,2.2rem);animation:fall 3s linear infinite}
+@keyframes fall{to{top:105%;transform:rotate(360deg)}}
+#cover{position:absolute;inset:0;background:rgba(30,25,60,.55);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;color:#fff;cursor:pointer;text-align:center}
+#cover b{font-size:clamp(1.4rem,6vw,2.6rem)}
+#cover .play{width:72px;height:72px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;font-size:2rem}
+#cap{background:var(--card);border-radius:14px;padding:14px 16px;margin-top:10px;font-size:clamp(1.05rem,4vw,1.4rem);line-height:1.7;min-height:5.6em;display:flex;align-items:center;box-shadow:0 2px 8px rgba(0,0,0,.08)}
+#segs{display:flex;gap:4px;margin-top:10px;direction:rtl}
+.seg{flex:1;height:10px;background:rgba(128,128,128,.3);border-radius:6px;overflow:hidden;cursor:pointer}
+.seg i{display:block;height:100%;width:0;background:var(--accent)}
+#ctl{display:flex;gap:10px;justify-content:center;margin-top:12px;flex-wrap:wrap}
+button{font:inherit;border:0;border-radius:22px;background:var(--accent);color:#fff;padding:8px 20px;cursor:pointer}
+button.o{background:var(--card);color:var(--text);box-shadow:0 1px 4px rgba(0,0,0,.2)}
+.paused *{animation-play-state:paused!important}
+</style>
+</head>
+<body>
+<div class="wrap">
+ <div id="stage"><div id="layer"></div>
+  <div id="cover"><div class="play">▶</div><b>سامي والتشتت</b><span>اضغط لبدء المشاهدة</span></div>
+ </div>
+ <div id="cap">اضغط على زر التشغيل لنبدأ القصة.</div>
+ <div id="segs"></div>
+ <div id="ctl">
+  <button id="pp">⏸ إيقاف</button>
+  <button id="rs" class="o">↻ من البداية</button>
+  <button id="snd" class="o">🔊 الصوت: يعمل</button>
+ </div>
+</div>
+<script>
+var POS=[{e:"🧸",l:14,t:22},{e:"📱",l:84,t:20},{e:"🎮",l:10,t:62},{e:"📺",l:88,t:58},{e:"🦋",l:34,t:9}];
+function sami(mood,written){
+ var mouth=mood==="sad"?'<path d="M184 128 Q200 116 216 128" stroke="#7a3b1d" stroke-width="3" fill="none"/>':mood==="happy"?'<path d="M182 120 Q200 142 218 120Z" fill="#c0392b"/>':'<path d="M188 126 H212" stroke="#7a3b1d" stroke-width="3"/>';
+ var eyes=mood==="happy"?'<path d="M180 104 Q187 96 194 104M206 104 Q213 96 220 104" stroke="#222" stroke-width="3" fill="none"/>':'<circle cx="187" cy="104" r="4" fill="#222"/><circle cx="213" cy="104" r="4" fill="#222"/>';
+ var look=mood==="sad"?'<path d="M178 94 L194 98M222 94 L206 98" stroke="#222" stroke-width="3"/>':'';
+ var nb=written?'<path d="M160 205 H240 M165 210 H235" stroke="#3a7bd5" stroke-width="2"/>':'';
+ return '<svg viewBox="0 0 400 225" preserveAspectRatio="xMidYMax meet">'+
+ '<rect x="165" y="150" width="70" height="70" rx="14" fill="#3a7bd5"/>'+
+ '<circle cx="200" cy="110" r="42" fill="#f5c9a0"/><path d="M158 106 Q160 62 200 64 Q242 62 242 106 Q222 84 200 86 Q176 84 158 106Z" fill="#4a2c17"/>'+
+ eyes+look+mouth+
+ '<rect x="70" y="196" width="260" height="14" rx="4" fill="#9c6b3f"/><rect x="90" y="210" width="12" height="15" fill="#7d5430"/><rect x="298" y="210" width="12" height="15" fill="#7d5430"/>'+
+ '<rect x="150" y="190" width="100" height="8" rx="2" fill="#fff" stroke="#bbb"/>'+nb+'</svg>';
+}
+var S=[
+ {d:5500,m:"neutral",t:"هذا سامي. عنده واجب مدرسي يريد أن ينهيه.",h:"القصة"},
+ {d:7000,m:"neutral",it:1,t:"فجأة ظهرت أشياء كثيرة تشدّ انتباهه: لعبة، وجوال، وتلفاز، وفراشة جميلة!",h:"ما الذي حدث؟"},
+ {d:7000,m:"sad",it:1,x:'<div class="pulse"><span class="spin">⏰</span></div>',t:"نظر سامي إلى هنا وهناك، ومرّ الوقت ولم يكتب شيئًا. هذا اسمه التشتت.",h:"التشتت"},
+ {d:6500,m:"neutral",it:2,t:"الحيلة الأولى: نُبعد الأشياء التي تشغلنا عن مكان الدراسة.",h:"الحيلة ١"},
+ {d:7000,m:"neutral",x:'<div class="pulse">⏱️</div><div class="mid" style="top:72%">١٥ دقيقة فقط</div>',t:"الحيلة الثانية: نعمل شيئًا واحدًا في كل مرة، ونضع وقتًا قصيرًا نركّز فيه.",h:"الحيلة ٢"},
+ {d:8000,m:"neutral",x:'<div class="breath">تنفّس</div>',t:"الحيلة الثالثة: إذا شردت أفكارك، خذ نفسًا عميقًا ثم ارجع إلى عملك بهدوء.",h:"الحيلة ٣"},
+ {d:7500,m:"happy",w:1,x:'<div class="conf" style="left:15%">⭐</div><div class="conf" style="left:40%;animation-delay:-1s">🎉</div><div class="conf" style="left:65%;animation-delay:-2s">⭐</div><div class="conf" style="left:85%;animation-delay:-.5s">✨</div>',t:"أنهى سامي واجبه بسرعة! وأنت أيضًا تستطيع أن تركّز. أحسنت!",h:"النهاية"}
+];
+var st=document.getElementById("stage"),layer=document.getElementById("layer"),cap=document.getElementById("cap");
+var i=0,t=0,playing=false,started=false,snd=true,last=0;
+var segs=document.getElementById("segs");
+S.forEach(function(s,k){var d=document.createElement("div");d.className="seg";d.innerHTML="<i></i>";d.onclick=function(){if(started){go(k)}};segs.appendChild(d)});
+function speak(x){
+ try{speechSynthesis.cancel();if(!snd)return;var u=new SpeechSynthesisUtterance(x);u.lang="ar-SA";u.rate=.9;speechSynthesis.speak(u)}catch(e){}
+}
+function go(k){
+ i=k;t=0;var s=S[k],h=sami(s.m,s.w||k===6);
+ var its="";
+ if(s.it){POS.forEach(function(p){
+  var dx=(p.l<50?-1:1)*160,dy=p.t<40?-120:60;
+  its+='<span class="it'+(s.it===2?' away':'')+'" style="left:'+p.l+'%;top:'+p.t+'%;--dx:'+dx+'%;--dy:'+dy+'%">'+p.e+'</span>'});}
+ layer.innerHTML=h+its+(s.x||"")+'<div class="badge">'+s.h+'</div>';
+ cap.textContent=s.t;speak(s.t);
+ [].forEach.call(segs.children,function(e,n){e.firstChild.style.width=n<k?"100%":"0"});
+}
+function tick(now){
+ var dt=now-last;last=now;
+ if(playing){
+  t+=dt;var s=S[i];
+  segs.children[i].firstChild.style.width=Math.min(100,t/s.d*100)+"%";
+  if(t>=s.d){
+   if(i<S.length-1)go(i+1);
+   else{playing=false;document.getElementById("pp").textContent="↻ مشاهدة مرة أخرى";}
+  }
+ }
+ requestAnimationFrame(tick);
+}
+function setPlay(p){
+ playing=p;st.classList.toggle("paused",!p);
+ document.getElementById("pp").textContent=p?"⏸ إيقاف":"▶ تشغيل";
+ try{p?speechSynthesis.resume():speechSynthesis.pause()}catch(e){}
+}
+function begin(){
+ started=true;document.getElementById("cover").style.display="none";
+ go(0);setPlay(true);
+}
+document.getElementById("cover").onclick=begin;
+document.getElementById("pp").onclick=function(){
+ if(!started)return begin();
+ if(i===S.length-1&&t>=S[i].d){go(0);setPlay(true);return}
+ setPlay(!playing);
+};
+document.getElementById("rs").onclick=function(){if(!started)return begin();go(0);setPlay(true)};
+document.getElementById("snd").onclick=function(){
+ snd=!snd;this.textContent="🔊 الصوت: "+(snd?"يعمل":"متوقف");
+ if(!snd){try{speechSynthesis.cancel()}catch(e){}}else if(started){speak(S[i].t)}
+};
+st.classList.add("paused");
+layer.innerHTML=sami("neutral",false);
+requestAnimationFrame(function(n){last=n;tick(n)});
+</script>
+</body>
+</html>
